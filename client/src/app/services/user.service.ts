@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { User } from '../models/user';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,17 +21,16 @@ export class UserService {
     }
   ];
 
-  constructor() { }
+  constructor(private httpClient: HttpClient) { }
 
-  getUsersFromData(): User[] {
-    return this.upersons;
+  getAllUsers(): Observable<User[]> {
+    return this.httpClient.get<User[]>('/user/getAllUsers');
   }
 
-  addUser(user: User) {
-    user.id = this.upersons.length + 1;
-    this.upersons.push(user);
-
+  createUser(user: User): Observable<User> {
+    return this.httpClient.post<User>('/user/createUser', user);
   }
+
   updateUser(user: User) {
     const index = this.upersons.findIndex(u => user.id === u.id);
     this.upersons[index] = user;

@@ -19,11 +19,13 @@ export class AppComponent implements OnInit {
   constructor(private userService: UserService) { }
 
   ngOnInit() {
-    this.users = this.getUsers();
+    this.getUsers();
   }
 
-  getUsers(): User[] {
-    return this.userService.getUsersFromData();
+  getUsers() {
+    this.userService.getAllUsers().subscribe((users) => {
+      this.users = users;
+    });
   }
 
   showEditUserForm(user: User) {
@@ -48,7 +50,9 @@ export class AppComponent implements OnInit {
   saveUser(user: User) {
     if (this.isNewUser) {
       // add a new user
-      this.userService.addUser(user);
+      this.userService.createUser(user).subscribe(() => {
+        this.getUsers();
+      });
     }
     this.userForm = false;
   }
