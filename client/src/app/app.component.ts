@@ -29,12 +29,7 @@ export class AppComponent implements OnInit {
   }
 
   showEditUserForm(user: User) {
-    if (!user) {
-      this.userForm = false;
-      return;
-    }
-    this.editUserForm = true;
-    this.editedUser = user;
+    this.findUserById(user.id);
   }
 
   showAddUserForm() {
@@ -75,6 +70,13 @@ export class AppComponent implements OnInit {
   cancelNewUser() {
     this.newUser = {};
     this.userForm = false;
+  }
+
+  findUserById(id: number) {
+    this.userService.findUserById(id).subscribe((user => {
+      this.editUserForm = true;
+      this.editedUser = user;
+    }));
   }
 
 }

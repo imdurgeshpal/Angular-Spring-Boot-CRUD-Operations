@@ -38,5 +38,8 @@ export class UserService {
   deleteUser(user: User) {
     this.upersons.splice(this.upersons.indexOf(user), 1);
   }
+  findUserById(id: number): Observable<User> {
+    return this.httpClient.get<User>(`/user/findUserById/${id}`);
+  }
 
 }
