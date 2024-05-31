@@ -1,82 +1,81 @@
-import { Component, OnInit } from '@angular/core';
-import { User } from './models/user';
+
+import { Component, OnInit, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { UserService } from './services/user.service';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { User } from './models/user';
+import { ModeEnum } from './models/mode.enum';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, ReactiveFormsModule],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
+  private userService = inject(UserService);
+  private fb = inject(FormBuilder);
+  protected form = this.fb.group({
+    id: [''],
+    firstName: ['', Validators.required],
+    lastName: ['', Validators.required],
+  });
+  protected ModeEnum = ModeEnum;
+  protected users!: User[];
+  protected mode = ModeEnum.NON;
 
-  users: User[];
-  userForm: boolean;
-  isNewUser: boolean;
-  newUser: any = {};
-  editUserForm: boolean;
-  editedUser: any = {};
-
-  constructor(private userService: UserService) { }
-
-  ngOnInit() {
-    this.getUsers();
+  ngOnInit(): void {
+    this.setUsers();
   }
 
-  getUsers() {
+  private setUsers() {
     this.userService.getAllUsers().subscribe((users) => {
       this.users = users;
     });
   }
 
-  showEditUserForm(user: User) {
-    this.findUserById(user.id);
+  protected addNewUser() {
+    this.mode = ModeEnum.ADD;
   }
 
-  showAddUserForm() {
-    // resets form if edited user
-    if (this.users.length) {
-      this.newUser = {};
+  protected editUser(user: User) {
+    this.mode = ModeEnum.EDIT;
+    this.form.setValue(user);
+  }
+
+  protected saveUser() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
-    this.userForm = true;
-    this.isNewUser = true;
+    const user = this.form.value as User;
 
-  }
-
-  saveUser(user: User) {
-    if (this.isNewUser) {
-      // add a new user
-      this.userService.createUser(user).subscribe(() => {
-        this.getUsers();
+    if (this.mode === ModeEnum.ADD) {
+      this.userService.addUser(user).subscribe(() => {
+        this.setUsers();
+        this.cancel();
+      });
+    } else {
+      this.userService.updateUser(user).subscribe(() => {
+        this.setUsers();
+        this.cancel();
       });
     }
-    this.userForm = false;
+
+
   }
 
-  updateUser() {
-    this.userService.updateUser(this.editedUser);
-    this.editUserForm = false;
-    this.editedUser = {};
+
+  protected removeUser(user: User) {
+    this.userService.deleteUser(user.id).subscribe(() => {
+      this.setUsers();
+    });
+    this.setUsers();
   }
 
-  removeUser(user: User) {
-    this.userService.deleteUser(user);
+  protected cancel() {
+    this.form.reset();
+    this.mode = ModeEnum.NON;
   }
-
-  cancelEdits() {
-    this.editedUser = {};
-    this.editUserForm = false;
-  }
-
-  cancelNewUser() {
-    this.newUser = {};
-    this.userForm = false;
-  }
-
-  findUserById(id: number) {
-    this.userService.findUserById(id).subscribe((user => {
-      this.editUserForm = true;
-      this.editedUser = user;
-    }));
-  }
-
 }

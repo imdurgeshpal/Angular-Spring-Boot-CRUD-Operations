@@ -1,53 +1,71 @@
-<div class="container">
-  <div class="row">
-    <div class="col-md-12 mt-4">
-      <h1 class="text-center">User List</h1>
-      <table class="table table-bordered table-striped table-hover">
+<div class="d-flex flex-column mt-4">
+  <div class="card align-self-center w-50">
+    <h4 class="card-header text-center">User List</h4>
+    <div class="card-body">
+      <table class="table">
         <thead>
           <tr>
-            <th class="text-center">ID</th>
-            <th class="text-center">First Name</th>
-            <th class="text-center">Last Name</th>
-            <th class="text-center">&nbsp;</th>
+            <th scope="col">Id.</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of users">
-            <td>{{ user.id }}</td>
-            <td>{{ user.firstName }}</td>
-            <td>{{ user.lastName }}</td>
-
-            <td>
-              <button type="button" class="btn btn-info btn-sm mr-2" (click)="showEditUserForm(user)">Edit</button>
-
-              <button type="button" class="btn btn-danger btn-sm" (click)="removeUser(user)">Delete</button>
-            </td>
-          </tr>
+          @for (user of users; track user) {
+            <tr>
+              <th scope="row">{{ user.id }}</th>
+              <td>{{ user.firstName }}</td>
+              <td>{{ user.lastName }}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-primary me-1" (click)="editUser(user)">
+                  Edit
+                </button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="removeUser(user)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
-      <button class="btn btn-success" (click)="showAddUserForm()">Add New User</button>
-
-      <div class="mt-4">
-        <form *ngIf="userForm">
-          <h2>Add New User</h2>
-          <p>First Name: <input type="text" name="firstName" [(ngModel)]="newUser.firstName" /></p>
-          <p>Last Name: <input type="text" name="lastName" [(ngModel)]="newUser.lastName" /></p>
-          <p>
-            <button type="button" class="btn btn-primary mr-2" (click)="saveUser(newUser)">Submit</button>
-            <button type="button" class="btn btn-warning" (click)="cancelNewUser()">Cancel</button>
-          </p>
-        </form>
-
-        <form *ngIf="editUserForm">
-          <h2>Edit User Details</h2>
-          <p>First Name: <input type="text" name="firstName" [(ngModel)]="editedUser.firstName" /></p>
-          <p>Last Name: <input type="text" name="lastName" [(ngModel)]="editedUser.lastName" /></p>
-          <p>
-            <button type="button" class="btn btn-primary mr-2" (click)="updateUser()">Submit</button>
-            <button type="button" class="btn btn-warning" (click)="cancelEdits()">Cancel</button>
-          </p>
-        </form>
-      </div>
+    </div>
+    <div class="card-footer text-center">
+      <button type="button" class="btn btn-info" (click)="addNewUser()">
+        Add New User
+      </button>
     </div>
   </div>
-</div>
+
+  @if (mode !==  ModeEnum.NON) {
+    <div class="card align-self-center w-50 mt-4">
+      <h4 class="card-header text-center">Add/Edit User</h4>
+      <div class="card-body">
+        <form [formGroup]="form">
+          <div class="mb-3 row">
+            <label for="firstName" class="col-sm-2 col-form-label">First Name</label>
+            <div class="col-sm-10">
+              <input type="text" id="firstName" placeholder="First Name" formControlName="firstName" class="form-control"
+                [class.is-invalid]="form.controls.firstName.invalid && form.controls.firstName.touched" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label for="lastName" class="col-sm-2 col-form-label">Last Name</label>
+              <div class="col-sm-10">
+                <input type="text" id="lastName" placeholder="Last Name" formControlName="lastName" class="form-control"
+                  [class.is-invalid]="form.controls.lastName.invalid && form.controls.lastName.touched" />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer d-flex justify-content-end">
+            <button type="button" class="btn btn-sm btn-success me-1" (click)="saveUser()">
+              Submit
+            </button>
+            <button type="button" class="btn btn-sm btn-warning" (click)="cancel()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      }
+    </div>
